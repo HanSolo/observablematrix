@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Karakun AG
+ * Copyright (c) 2019 by Gerrit Grunwald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -383,7 +383,6 @@ public class ObservableMatrix<T> {
                 newMatrix[x][y] = matrix[x - 1][y];
             }
         }
-
         matrix = newMatrix;
         MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
         if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
@@ -415,7 +414,6 @@ public class ObservableMatrix<T> {
                     }
                 }
             }
-
             matrix = newMatrix;
         }
         MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_REMOVED, at);
@@ -588,8 +586,8 @@ public class ObservableMatrix<T> {
     }
     public List<Integer> getAllEmptyColumns() {
         List<Integer> emptyColumns = new ArrayList<>();
-        for (int i = 0; i < getNoOfCols() ; i++) {
-            if (getCol(i).stream().filter(Objects::nonNull).count() == 0) { emptyColumns.add(i); }
+        for (int x = 0; x < getNoOfCols() ; x++) {
+            if (getCol(x).stream().filter(Objects::nonNull).count() == 0) { emptyColumns.add(x); }
         }
         return emptyColumns;
     }
@@ -601,8 +599,8 @@ public class ObservableMatrix<T> {
     }
     public List<Integer> getAllEmptyRows() {
         List<Integer> emptyRows = new ArrayList<>();
-        for (int i = 0; i < getNoOfRows() ; i++) {
-            if (getRow(i).stream().filter(Objects::nonNull).count() == 0) { emptyRows.add(i); }
+        for (int y = 0; y < getNoOfRows() ; y++) {
+            if (getRow(y).stream().filter(Objects::nonNull).count() == 0) { emptyRows.add(y); }
         }
         return emptyRows;
     }
