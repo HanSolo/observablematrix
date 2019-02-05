@@ -33,31 +33,38 @@ ObservableMatrix<Label> labelMatrix = new ObservableMatrix<>(Label.class, 5, 5);
 ```
 
 The matrix supports methods for the following operations:
-- getItemAt(int col, int row)
-- setItemAt(int col, int row)
-- removeItemAt(int col, int row)
-- removeItem(T item)
-- contains(T item)
-- getIndicesOf(T item)
-- getAllItems()
+- getItemAt(int x, int y) 
+- setItemAt(int x, int y, T item) {
+- removeItemAt(int x, int y) {
+- removeItem(T item) {
+- contains(T item) {
+- getIndicesOf(T item) {
+- getMatrix() { return matrix; }
+- getAllItems() { return stream().filter(Objects::nonNull).collect(Collectors.toList()); }
 - stream()
-- clear()
-- getCol(int index)
-- getRow(int index)
-- isColEmpty()
-- isRowEmpty()
-- getCols()
+- reset()
+- getCol(int col)
+- getRow(int row)
+- isColEmpty(int col)
+- isRowEmpty(int row)
+- getNoOfCols()
 - setCols(int cols)
-- getRows()
-- setRows(int rows)
-- addCol(int at, List items)
+- addCol(int at, Supplier<T> itemSupplier)
+- addCol(int at, List<T> items)
 - addNullCol(int at)
 - removeCol(int at)
-- addRow(int at, List items)
+- addRow(int at, Supplier<T> itemSupplier)
+- addRow(int at, List<T> items)
 - addNullRow(int at)
 - removeRow(int at)
+- getNoOfRows()
+- setRows(int rows)
 - getAllColumns()
+- getAllEmptyColumns()
 - getAllRows()
+- getAllEmptyRows()
+- getResizeMatrixWhenInnerRowOrColIsRemoved()
+- setResizeMatrixWhenInnerRowOrColIsRemoved(boolean resize)
  
  
  Please find a little example in the Demo class.
