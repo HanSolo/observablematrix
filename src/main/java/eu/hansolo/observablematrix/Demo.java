@@ -16,13 +16,8 @@
 
 package eu.hansolo.observablematrix;
 
-import eu.hansolo.observablematrix.event.MEvent;
-import eu.hansolo.observablematrix.event.MEventType;
-import eu.hansolo.observablematrix.event.MItemEvent;
-import eu.hansolo.observablematrix.event.MObserver;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -32,7 +27,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 
 import java.util.Random;
-import java.util.function.Consumer;
 
 
 /**
@@ -65,6 +59,21 @@ public class Demo extends Application {
                 grid.add(label, x, y);
             }
         }
+
+        ObservableMatrix<Integer> matrix = new ObservableMatrix<>(Integer.class, 5, 3);
+        for (int y = 0 ; y < 3 ; y++) {
+            for (int x = 0 ; x < 5 ; x++) {
+                matrix.setItemAt(x, y, RND.nextInt(10));
+            }
+        }
+        System.out.println("Reihen in Matrix    : " + matrix.getNoOfRows());
+        System.out.println("Anzahl leerer Reihen: " + matrix.getAllEmptyRows());
+
+        matrix.removeRow(1);
+
+        System.out.println("Reihen in Matrix    : " + matrix.getNoOfRows());
+        System.out.println("Anzahl leerer Reihen: " + matrix.getAllEmptyRows());
+
 
         integerMatrix.setOnItemChanged(e -> {
             Node node = getNodeAt(e.getX(), e.getY(), grid);

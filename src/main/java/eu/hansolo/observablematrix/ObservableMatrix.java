@@ -398,6 +398,8 @@ public class ObservableMatrix<T> {
         if (at < 0 || at > cols) { throw new IllegalArgumentException("index cannot be smaller or larger than cols"); }
         if (cols <= 1) { throw new IllegalArgumentException("there is just one column in the matrix"); }
 
+        for (int y = 0 ; y < getNoOfRows() ; y++) { matrix[at][y] = null; }
+
         if (0 == at || (cols - 1) == at || resizeMatrixWhenInnerRowOrColIsRemoved) {
             cols--;
 
@@ -507,6 +509,8 @@ public class ObservableMatrix<T> {
     public void removeRow(final int at) {
         if (at < 0 || at > rows) { throw new IllegalArgumentException("index cannot be smaller or larger than rows"); }
         if (rows <= 1) { throw new IllegalArgumentException("there is just one row in the matrix"); }
+
+        for (int x = 0 ; x < getNoOfCols() ; x++) { matrix[x][at] = null; }
 
         if (0 == at || (rows - 1) == at || resizeMatrixWhenInnerRowOrColIsRemoved) {
             rows--;
