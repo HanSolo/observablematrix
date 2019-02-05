@@ -64,16 +64,21 @@ public class ObservableMatrix<T> {
     private       Consumer<MRowEvent>          rowRemovedConsumer;
     private       Consumer<MColumnsEvent>      columnsChangedConsumer;
     private       Consumer<MRowsEvent>         rowsChangedConsumer;
+    private       boolean                      resizeMatrixWhenInnerRowOrColIsRemoved;
 
 
 
     // ******************** Constructors **************************************
     public ObservableMatrix(Class<T> type, final int cols, final int rows) {
-        this.type      = type;
-        this.observers = new ConcurrentHashMap<>();;
-        this.matrix    = createArray(type, cols, rows);
-        this.cols      = cols;
-        this.rows      = rows;
+        this(type, cols, rows, false);
+    }
+    public ObservableMatrix(Class<T> type, final int cols, final int rows, final boolean resizeMatrixWhenInnerRowOrColIsRemoved) {
+        this.type                                   = type;
+        this.observers                              = new ConcurrentHashMap<>();;
+        this.matrix                                 = createArray(type, cols, rows);
+        this.cols                                   = cols;
+        this.rows                                   = rows;
+        this.resizeMatrixWhenInnerRowOrColIsRemoved = resizeMatrixWhenInnerRowOrColIsRemoved;
     }
 
 
@@ -97,6 +102,7 @@ public class ObservableMatrix<T> {
      */
     public void setItemAt(final int x, final int y, final T item) {
         if (x < 0 || x > (cols - 1) || y < 0 || y > (rows - 1)) { throw new IllegalArgumentException("cols/rows cannot be smaller than 0"); }
+
         T oldItem = matrix[x][y];
         matrix[x][y] = item;
 
@@ -265,7 +271,7 @@ public class ObservableMatrix<T> {
      * Returns the number of columns in the matrix
      * @return the number of columsn of the matrix
      */
-    public int getCols() { return cols; }
+    public int getNoOfCols() { return cols; }
 
     /**
      * Sets the number of columsn in the matrix.
@@ -303,51 +309,6 @@ public class ObservableMatrix<T> {
         }
         MColumnsEvent evt = new MColumnsEvent(ObservableMatrix.this, NO_OF_COLUMNS_CHANGED, cols);
         if (null != columnsChangedConsumer) { columnsChangedConsumer.accept(evt); }
-        fireEvent(evt);
-    }
-
-    /**
-     * Returns the number of rows in the matrix
-     * @return the number of rows in the matrix
-     */
-    public int getRows() { return rows; }
-
-    /**
-     * Sets the number of rows in the matrix.
-     * Existing entries will be copied to the new matrix.
-     * If the new number of rows is smaller than the old
-     * one, all items in rows outside the new matrix will
-     * be lost.
-     * @param rows
-     */
-    public void setRows(final int rows) {
-        if (rows == -1 || cols == -1 || this.rows == -1) { throw new IllegalArgumentException("cols/rows cannot be smaller 0"); }
-        T[][] oldMatrix = (T[][]) new Object[cols][rows];
-        for (int y = 0 ; y < this.rows ; y++) {
-            for (int x = 0 ; x < this.cols ; x++) {
-                oldMatrix[x][y] = matrix[x][y];
-            }
-        }
-        int oldRows = this.rows;
-        this.rows   = rows;
-        matrix = createArray(type, cols, rows);
-
-        int c  = cols;
-        int r;
-        if (rows > this.rows) {
-            r = oldRows;
-        } else if (rows < this.rows) {
-            r = rows;
-        } else {
-            r = rows;
-        }
-        for (int y = 0 ; y < r ; y++) {
-            for (int x = 0 ; x < c ; x++) {
-                matrix[x][y] = oldMatrix[x][y];
-            }
-        }
-        MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, NO_OF_ROWS_CHANGED, rows);
-        if (null != rowsChangedConsumer) { rowsChangedConsumer.accept(evt); }
         fireEvent(evt);
     }
 
@@ -437,23 +398,24 @@ public class ObservableMatrix<T> {
         if (at < 0 || at > cols) { throw new IllegalArgumentException("index cannot be smaller or larger than cols"); }
         if (cols <= 1) { throw new IllegalArgumentException("there is just one column in the matrix"); }
 
-        cols--;
+        if (0 == at || (cols - 1) == at || resizeMatrixWhenInnerRowOrColIsRemoved) {
+            cols--;
 
-        T[][] newMatrix = createArray(type, cols, rows);
-        for (int y = 0 ; y < rows ; y++) {
-            for (int x = 0 ; x <= cols ; x++) {
-                if (x < at) {
-                    newMatrix[x][y] = matrix[x][y];
-                } else if (x == at) {
+            T[][] newMatrix = createArray(type, cols, rows);
+            for (int y = 0; y < rows; y++) {
+                for (int x = 0; x <= cols; x++) {
+                    if (x < at) {
+                        newMatrix[x][y] = matrix[x][y];
+                    } else if (x == at) {
 
-                }
-                else {
-                    newMatrix[x - 1][y] = matrix[x][y];
+                    } else {
+                        newMatrix[x - 1][y] = matrix[x][y];
+                    }
                 }
             }
-        }
 
-        matrix = newMatrix;
+            matrix = newMatrix;
+        }
         MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_REMOVED, at);
         if (null != columnRemovedConsumer) { columnRemovedConsumer.accept(evt); }
         fireEvent(evt);
@@ -546,46 +508,104 @@ public class ObservableMatrix<T> {
         if (at < 0 || at > rows) { throw new IllegalArgumentException("index cannot be smaller or larger than rows"); }
         if (rows <= 1) { throw new IllegalArgumentException("there is just one row in the matrix"); }
 
-        rows--;
+        if (0 == at || (rows - 1) == at || resizeMatrixWhenInnerRowOrColIsRemoved) {
+            rows--;
 
-        T[][] newMatrix = createArray(type, cols, rows);
-        for (int y = 0 ; y <= rows ; y++) {
-            if (y < at) {
-                for (int x = 0; x < cols; x++) {
-                    newMatrix[x][y] = matrix[x][y];
-                }
-            } else if (y == at) {
+            T[][] newMatrix = createArray(type, cols, rows);
+            for (int y = 0; y <= rows; y++) {
+                if (y < at) {
+                    for (int x = 0; x < cols; x++) {
+                        newMatrix[x][y] = matrix[x][y];
+                    }
+                } else if (y == at) {
 
-            } else {
-                for (int x = 0; x < cols; x++) {
-                    newMatrix[x][y - 1] = matrix[x][y];
+                } else {
+                    for (int x = 0; x < cols; x++) {
+                        newMatrix[x][y - 1] = matrix[x][y];
+                    }
                 }
             }
+            matrix = newMatrix;
         }
-
-        matrix = newMatrix;
         MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_REMOVED, at);
         if (null != rowRemovedConsumer) { rowRemovedConsumer.accept(evt); }
         fireEvent(evt);
     }
 
+    /**
+     * Returns the number of rows in the matrix
+     * @return the number of rows in the matrix
+     */
+    public int getNoOfRows() { return rows; }
+
+    /**
+     * Sets the number of rows in the matrix.
+     * Existing entries will be copied to the new matrix.
+     * If the new number of rows is smaller than the old
+     * one, all items in rows outside the new matrix will
+     * be lost.
+     * @param rows
+     */
+    public void setRows(final int rows) {
+        if (rows == -1 || cols == -1 || this.rows == -1) { throw new IllegalArgumentException("cols/rows cannot be smaller 0"); }
+        T[][] oldMatrix = (T[][]) new Object[cols][rows];
+        for (int y = 0 ; y < this.rows ; y++) {
+            for (int x = 0 ; x < this.cols ; x++) {
+                oldMatrix[x][y] = matrix[x][y];
+            }
+        }
+        int oldRows = this.rows;
+        this.rows   = rows;
+        matrix = createArray(type, cols, rows);
+
+        int c  = cols;
+        int r;
+        if (rows > this.rows) {
+            r = oldRows;
+        } else if (rows < this.rows) {
+            r = rows;
+        } else {
+            r = rows;
+        }
+        for (int y = 0 ; y < r ; y++) {
+            for (int x = 0 ; x < c ; x++) {
+                matrix[x][y] = oldMatrix[x][y];
+            }
+        }
+        MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, NO_OF_ROWS_CHANGED, rows);
+        if (null != rowsChangedConsumer) { rowsChangedConsumer.accept(evt); }
+        fireEvent(evt);
+    }
 
     public List<List<T>> getAllColumns() {
         List<List<T>> columns = new ArrayList<>();
-        for (int i = 0 ; i < getCols() ; i++) {
-            columns.add(getCol(i));
-        }
+        for (int i = 0; i < getNoOfCols() ; i++) { columns.add(getCol(i)); }
         return columns;
+    }
+    public List<Integer> getAllEmptyColumns() {
+        List<Integer> emptyColumns = new ArrayList<>();
+        for (int i = 0; i < getNoOfCols() ; i++) {
+            if (getCol(i).stream().filter(Objects::nonNull).count() == 0) { emptyColumns.add(i); }
+        }
+        return emptyColumns;
     }
 
     public List<List<T>> getAllRows() {
         List<List<T>> rows = new ArrayList<>();
-        for (int i = 0 ; i < getRows() ; i++) {
-            rows.add(getRow(i));
-        }
+        for (int i = 0; i < getNoOfRows() ; i++) { rows.add(getRow(i)); }
         return rows;
     }
+    public List<Integer> getAllEmptyRows() {
+        List<Integer> emptyRows = new ArrayList<>();
+        for (int i = 0; i < getNoOfRows() ; i++) {
+            if (getRow(i).stream().filter(Objects::nonNull).count() == 0) { emptyRows.add(i); }
+        }
+        return emptyRows;
+    }
 
+
+    public boolean getResizeMatrixWhenInnerRowOrColIsRemoved() { return resizeMatrixWhenInnerRowOrColIsRemoved; }
+    public void setResizeMatrixWhenInnerRowOrColIsRemoved(final boolean resize) { resizeMatrixWhenInnerRowOrColIsRemoved = resize; }
 
 
     // ******************** Private methods ***********************************
