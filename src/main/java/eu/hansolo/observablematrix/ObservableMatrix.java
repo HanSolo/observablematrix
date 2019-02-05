@@ -163,7 +163,7 @@ public class ObservableMatrix<T> {
     public boolean contains(final T item) {
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                if (matrix[x][y].equals(item)) { return true; }
+                if (null != matrix[x][y] && matrix[x][y].equals(item)) { return true; }
             }
         }
         return false;
