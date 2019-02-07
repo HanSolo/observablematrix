@@ -71,8 +71,42 @@ public class Demo extends Application {
 
         matrix.removeRow(1);
 
-        System.out.println("Reihen in Matrix    : " + matrix.getNoOfRows());
-        System.out.println("Anzahl leerer Reihen: " + matrix.getAllEmptyRows());
+        System.out.println("Rows in matrix      : " + matrix.getNoOfRows());
+        System.out.println("Number of empty rows: " + matrix.getAllEmptyRows());
+
+
+        matrix = new ObservableMatrix<>(Integer.class, 5, 4);
+        for (int y = 0 ; y < 4 ; y++) {
+            for (int x = 0 ; x < 5 ; x++) {
+                matrix.setItemAt(x, y, RND.nextInt(10));
+            }
+        }
+        for (int y = 0 ; y < matrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < matrix.getNoOfCols() ; x++) {
+                System.out.print(matrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nAdd column of 'null' objects at column 0:\n");
+        matrix.addNullCol(0);
+
+        for (int y = 0 ; y < matrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < matrix.getNoOfCols() ; x++) {
+                System.out.print(matrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nRemove last column:\n");
+        matrix.removeCol(matrix.getNoOfCols() - 1);
+
+        for (int y = 0 ; y < matrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < matrix.getNoOfCols() ; x++) {
+                System.out.print(matrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
 
 
         integerMatrix.setOnItemChanged(e -> {

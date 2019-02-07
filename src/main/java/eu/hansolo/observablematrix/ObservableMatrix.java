@@ -50,21 +50,21 @@ import static eu.hansolo.observablematrix.event.MRowsEvent.NO_OF_ROWS_CHANGED;
 
 
 public class ObservableMatrix<T> {
-    private final Class<T>                     type;
-    private final Map<String, List<MObserver>> observers;
-    private       T[][]                        matrix;
-    private       int                          cols;
-    private       int                          rows;
-    private       Consumer<MItemEvent<T>>      itemAddedConsumer;
-    private       Consumer<MItemEvent<T>>      itemRemovedConsumer;
-    private       Consumer<MItemEvent<T>>      itemChangedConsumer;
-    private       Consumer<MColumnEvent>       columnAddedConsumer;
-    private       Consumer<MColumnEvent>       columnRemovedConsumer;
-    private       Consumer<MRowEvent>          rowAddedConsumer;
-    private       Consumer<MRowEvent>          rowRemovedConsumer;
-    private       Consumer<MColumnsEvent>      columnsChangedConsumer;
-    private       Consumer<MRowsEvent>         rowsChangedConsumer;
-    private       boolean                      resizeMatrixWhenInnerRowOrColIsRemoved;
+    private final          Class<T>                     type;
+    private final          Map<String, List<MObserver>> observers;
+    private                T[][]                        matrix;
+    private       volatile int                          cols;
+    private       volatile int                          rows;
+    private                Consumer<MItemEvent<T>>      itemAddedConsumer;
+    private                Consumer<MItemEvent<T>>      itemRemovedConsumer;
+    private                Consumer<MItemEvent<T>>      itemChangedConsumer;
+    private                Consumer<MColumnEvent>       columnAddedConsumer;
+    private                Consumer<MColumnEvent>       columnRemovedConsumer;
+    private                Consumer<MRowEvent>          rowAddedConsumer;
+    private                Consumer<MRowEvent>          rowRemovedConsumer;
+    private                Consumer<MColumnsEvent>      columnsChangedConsumer;
+    private                Consumer<MRowsEvent>         rowsChangedConsumer;
+    private                boolean                      resizeMatrixWhenInnerRowOrColIsRemoved;
 
 
 
