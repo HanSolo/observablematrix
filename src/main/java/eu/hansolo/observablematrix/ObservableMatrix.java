@@ -251,7 +251,7 @@ public class ObservableMatrix<T> {
     public boolean isColEmpty(final int col) {
         List<T> c = getCol(col);
         long count = 0;
-        for(T item : c) { if (null == item) { count++; }}
+        for(T item : c) { if (null != item) { count++; }}
         return 0 == count;
     }
 
@@ -263,7 +263,7 @@ public class ObservableMatrix<T> {
     public boolean isRowEmpty(final int row) {
         List<T> r = getRow(row);
         long count = 0;
-        for (T item : r) { if (null == item) { count++; }}
+        for (T item : r) { if (null != item) { count++; }}
         return 0 == count;
     }
 
@@ -383,6 +383,7 @@ public class ObservableMatrix<T> {
                 newMatrix[x][y] = matrix[x - 1][y];
             }
         }
+
         matrix = newMatrix;
         MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
         if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
