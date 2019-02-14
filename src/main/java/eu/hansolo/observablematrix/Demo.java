@@ -126,6 +126,69 @@ public class Demo extends Application {
         });
         */
 
+        System.out.println("\nMirror matrix rows:\n");
+        ObservableMatrix<Integer> mirrorRowsMatrix = new ObservableMatrix<>(Integer.class, 3, 4);
+        mirrorRowsMatrix.setItemAt(0, 0, 1);
+        mirrorRowsMatrix.setItemAt(1, 0, 2);
+        mirrorRowsMatrix.setItemAt(2, 0, 3);
+        mirrorRowsMatrix.setItemAt(0, 1, 4);
+        mirrorRowsMatrix.setItemAt(1, 1, 5);
+        mirrorRowsMatrix.setItemAt(2, 1, 6);
+        mirrorRowsMatrix.setItemAt(0, 2, 7);
+        mirrorRowsMatrix.setItemAt(1, 2, 8);
+        mirrorRowsMatrix.setItemAt(2, 2, 9);
+        mirrorRowsMatrix.setItemAt(0, 3, 10);
+        mirrorRowsMatrix.setItemAt(1, 3, 11);
+        mirrorRowsMatrix.setItemAt(2, 3, 12);
+
+        for (int y = 0 ; y < mirrorRowsMatrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < mirrorRowsMatrix.getNoOfCols() ; x++) {
+                System.out.print(mirrorRowsMatrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
+
+        mirrorRowsMatrix.mirrorRows();
+        System.out.println("\nMirror rows\n");
+        for (int y = 0 ; y < mirrorRowsMatrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < mirrorRowsMatrix.getNoOfCols() ; x++) {
+                System.out.print(mirrorRowsMatrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nMirror matrix columns:\n");
+        ObservableMatrix<Integer> mirrorColsMatrix = new ObservableMatrix<>(Integer.class, 3, 4);
+        mirrorColsMatrix.setItemAt(0, 0, 1);
+        mirrorColsMatrix.setItemAt(1, 0, 2);
+        mirrorColsMatrix.setItemAt(2, 0, 3);
+        mirrorColsMatrix.setItemAt(0, 1, 4);
+        mirrorColsMatrix.setItemAt(1, 1, 5);
+        mirrorColsMatrix.setItemAt(2, 1, 6);
+        mirrorColsMatrix.setItemAt(0, 2, 7);
+        mirrorColsMatrix.setItemAt(1, 2, 8);
+        mirrorColsMatrix.setItemAt(2, 2, 9);
+        mirrorColsMatrix.setItemAt(0, 3, 10);
+        mirrorColsMatrix.setItemAt(1, 3, 11);
+        mirrorColsMatrix.setItemAt(2, 3, 12);
+
+        for (int y = 0 ; y < mirrorColsMatrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < mirrorColsMatrix.getNoOfCols() ; x++) {
+                System.out.print(mirrorColsMatrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
+
+        mirrorColsMatrix.mirrorColumns();
+        System.out.println("\nMirror columns\n");
+        for (int y = 0 ; y < mirrorColsMatrix.getNoOfRows() ; y++) {
+            for (int x = 0 ; x < mirrorColsMatrix.getNoOfCols() ; x++) {
+                System.out.print(mirrorColsMatrix.getItemAt(x, y) + " ");
+            }
+            System.out.println();
+        }
+
+
         lastTimerCall = System.nanoTime();
         timer = new AnimationTimer() {
             @Override public void handle(final long now) {

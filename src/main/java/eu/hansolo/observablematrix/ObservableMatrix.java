@@ -67,7 +67,6 @@ public class ObservableMatrix<T> {
     private                boolean                      resizeMatrixWhenInnerRowOrColIsRemoved;
 
 
-
     // ******************** Constructors **************************************
     public ObservableMatrix(Class<T> type, final int cols, final int rows) {
         this(type, cols, rows, false);
@@ -606,6 +605,23 @@ public class ObservableMatrix<T> {
         return emptyRows;
     }
 
+    public void mirrorColumns() {
+        for(int i = 0; i < (matrix.length/2); i++) {
+            T[] temp = matrix[i];
+            matrix[i] = matrix[matrix.length - i - 1];
+            matrix[matrix.length - i - 1] = temp;
+        }
+    }
+    public void mirrorRows() {
+        for (int j = 0; j < matrix.length; ++j) {
+            T[] row = matrix[j];
+            for(int i = 0; i < (row.length/2); i++) {
+                T temp = row[i];
+                row[i] = matrix[j][row.length - i - 1];
+                row[row.length - i - 1] = temp;
+            }
+        }
+    }
 
     public boolean getResizeMatrixWhenInnerRowOrColIsRemoved() { return resizeMatrixWhenInnerRowOrColIsRemoved; }
     public void setResizeMatrixWhenInnerRowOrColIsRemoved(final boolean resize) { resizeMatrixWhenInnerRowOrColIsRemoved = resize; }
