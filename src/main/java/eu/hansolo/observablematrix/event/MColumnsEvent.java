@@ -19,6 +19,7 @@ package eu.hansolo.observablematrix.event;
 public class MColumnsEvent extends MEvent {
     public static final MEventType<MColumnsEvent> ANY                   = new MEventType<>(MEvent.ANY, "COLUMNS_ANY");
     public static final MEventType<MColumnsEvent> NO_OF_COLUMNS_CHANGED = new MEventType<>(MColumnsEvent.ANY, "NO_OF_COLUMNS_CHANGED");
+    public static final MEventType<MColumnsEvent> COLUMNS_MIRRORED      = new MEventType<>(MColumnsEvent.ANY, "COLUMNS_MIRRORED");
 
     private final int noOfColumns;
 

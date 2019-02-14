@@ -17,8 +17,9 @@
 package eu.hansolo.observablematrix.event;
 
 public class MRowsEvent extends MEvent {
-    public static final MEventType<MRowsEvent> ANY                   = new MEventType<>(MEvent.ANY, "ROWS_ANY");
+    public static final MEventType<MRowsEvent> ANY                = new MEventType<>(MEvent.ANY, "ROWS_ANY");
     public static final MEventType<MRowsEvent> NO_OF_ROWS_CHANGED = new MEventType<>(MRowsEvent.ANY, "NO_OF_ROWS_CHANGED");
+    public static final MEventType<MRowsEvent> ROWS_MIRRORED      = new MEventType<>(MRowsEvent.ANY, "ROWS_MIRRORED");
 
     private final int noOfRows;
 

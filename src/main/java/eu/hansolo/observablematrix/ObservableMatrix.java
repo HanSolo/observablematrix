@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 
 import static eu.hansolo.observablematrix.event.MColumnEvent.COLUMN_ADDED;
 import static eu.hansolo.observablematrix.event.MColumnEvent.COLUMN_REMOVED;
+import static eu.hansolo.observablematrix.event.MColumnsEvent.COLUMNS_MIRRORED;
 import static eu.hansolo.observablematrix.event.MItemEvent.ITEM_ADDED;
 import static eu.hansolo.observablematrix.event.MItemEvent.ITEM_CHANGED;
 import static eu.hansolo.observablematrix.event.MItemEvent.ITEM_REMOVED;
@@ -47,6 +48,7 @@ import static eu.hansolo.observablematrix.event.MRowEvent.ROW_ADDED;
 import static eu.hansolo.observablematrix.event.MRowEvent.ROW_REMOVED;
 import static eu.hansolo.observablematrix.event.MColumnsEvent.NO_OF_COLUMNS_CHANGED;
 import static eu.hansolo.observablematrix.event.MRowsEvent.NO_OF_ROWS_CHANGED;
+import static eu.hansolo.observablematrix.event.MRowsEvent.ROWS_MIRRORED;
 
 
 public class ObservableMatrix<T> {
@@ -55,6 +57,8 @@ public class ObservableMatrix<T> {
     private                T[][]                        matrix;
     private       volatile int                          cols;
     private       volatile int                          rows;
+    private                boolean                      colsMirrored;
+    private                boolean                      rowsMirrored;
     private                Consumer<MItemEvent<T>>      itemAddedConsumer;
     private                Consumer<MItemEvent<T>>      itemRemovedConsumer;
     private                Consumer<MItemEvent<T>>      itemChangedConsumer;
@@ -64,6 +68,8 @@ public class ObservableMatrix<T> {
     private                Consumer<MRowEvent>          rowRemovedConsumer;
     private                Consumer<MColumnsEvent>      columnsChangedConsumer;
     private                Consumer<MRowsEvent>         rowsChangedConsumer;
+    private                Consumer<MColumnsEvent>      columnsMirroredConsumer;
+    private                Consumer<MRowsEvent>         rowsMirroredConsumer;
     private                boolean                      resizeMatrixWhenInnerRowOrColIsRemoved;
 
 
@@ -77,6 +83,8 @@ public class ObservableMatrix<T> {
         this.matrix                                 = createArray(type, cols, rows);
         this.cols                                   = cols;
         this.rows                                   = rows;
+        this.colsMirrored                           = false;
+        this.rowsMirrored                           = false;
         this.resizeMatrixWhenInnerRowOrColIsRemoved = resizeMatrixWhenInnerRowOrColIsRemoved;
     }
 
@@ -611,6 +619,10 @@ public class ObservableMatrix<T> {
             matrix[i] = matrix[matrix.length - i - 1];
             matrix[matrix.length - i - 1] = temp;
         }
+        colsMirrored = !colsMirrored;
+        MColumnsEvent evt = new MColumnsEvent(ObservableMatrix.this, COLUMNS_MIRRORED, cols);
+        if (null != columnsMirroredConsumer) { columnsMirroredConsumer.accept(evt); }
+        fireEvent(evt);
     }
     public void mirrorRows() {
         for (int j = 0; j < matrix.length; ++j) {
@@ -621,7 +633,14 @@ public class ObservableMatrix<T> {
                 row[row.length - i - 1] = temp;
             }
         }
+        rowsMirrored = !rowsMirrored;
+        MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, ROWS_MIRRORED, rows);
+        if (null != rowsMirroredConsumer) { rowsMirroredConsumer.accept(evt); }
+        fireEvent(evt);
     }
+
+    public boolean getColsMirrored() { return colsMirrored; }
+    public boolean getRowsMirrored() { return rowsMirrored; }
 
     public boolean getResizeMatrixWhenInnerRowOrColIsRemoved() { return resizeMatrixWhenInnerRowOrColIsRemoved; }
     public void setResizeMatrixWhenInnerRowOrColIsRemoved(final boolean resize) { resizeMatrixWhenInnerRowOrColIsRemoved = resize; }
@@ -740,6 +759,9 @@ public class ObservableMatrix<T> {
      */
     public void setOnNoOfRowsChanged(final Consumer<MRowsEvent> rowsChangedConsumer) { this.rowsChangedConsumer = rowsChangedConsumer; }
 
+    public void setOnColumnsMirrored(final Consumer<MColumnsEvent> columnsMirroredConsumer) { this.columnsMirroredConsumer = columnsMirroredConsumer; }
+
+    public void setOnRowsMirrored(final Consumer<MRowsEvent> rowsMirroredConsumer) { this.rowsMirroredConsumer = rowsMirroredConsumer; }
 
     /**
      * Add the given MatrixObserver<T> for the given TYPE to the map of observers
