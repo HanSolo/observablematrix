@@ -108,11 +108,15 @@ public class ObservableMatrix<T> {
      * @param item
      */
     public void setItemAt(final int x, final int y, final T item) {
+        setItemAt(x, y, item, true);
+    }
+    public void setItemAt(final int x, final int y, final T item, final boolean notify) {
         if (x < 0 || x > (cols - 1) || y < 0 || y > (rows - 1)) { throw new IllegalArgumentException("cols/rows cannot be smaller than 0"); }
 
         T oldItem = matrix[x][y];
         matrix[x][y] = item;
 
+        if (notify) {
         if (null == oldItem && item != null) {
             MItemEvent<T> evt = new MItemEvent<>(ObservableMatrix.this, ITEM_ADDED, x, y, oldItem, item);
             if (null != itemAddedConsumer) { itemAddedConsumer.accept(evt);}
@@ -129,6 +133,7 @@ public class ObservableMatrix<T> {
             return;
         }
     }
+    }
 
     /**
      * Removes item at position defined by x and y
@@ -136,13 +141,16 @@ public class ObservableMatrix<T> {
      * @param x Column where the item will be set to null
      * @param y Column where the item will be set to null
      */
-    public void removeItemAt(final int x, final int y) {
+    public void removeItemAt(final int x, final int y) { removeItemAt(x, y, true); }
+    public void removeItemAt(final int x, final int y, final boolean notify) {
         if (x < 0 || x > (cols - 1) || y < 0 || y > (rows - 1)) { throw new IllegalArgumentException("cols/rows cannot be smaller than 0"); }
         T oldItem = matrix[x][y];
         matrix[x][y] = null;
+        if (notify) {
         MItemEvent<T> evt = new MItemEvent<>(ObservableMatrix.this, ITEM_REMOVED, x, y, oldItem, null);
         if (null != itemRemovedConsumer) { itemRemovedConsumer.accept(evt); }
         fireEvent(evt);
+        }
         checkForRemovedColumnsAndRows(x, y);
     }
 
@@ -150,7 +158,8 @@ public class ObservableMatrix<T> {
      * If item is found in matrix it's position in the matrix will be set to null
      * @param item Item to remove from matrix
      */
-    public void removeItem(final T item) {
+    public void removeItem(final T item) { removeItem(item, true); }
+    public void removeItem(final T item, final boolean notify) {
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 T matrixItem = matrix[x][y];
@@ -158,9 +167,11 @@ public class ObservableMatrix<T> {
                     continue;
                 } else if (matrixItem.equals(item)) {
                     matrix[x][y] = null;
+                    if (notify) {
                     MItemEvent<T> evt = new MItemEvent<>(ObservableMatrix.this, ITEM_REMOVED, x, y, item, null);
                     if (null != itemRemovedConsumer) { itemRemovedConsumer.accept(evt); }
                     fireEvent(evt);
+                    }
                     checkForRemovedColumnsAndRows(x, y);
                     return;
                 }
@@ -324,7 +335,8 @@ public class ObservableMatrix<T> {
      * @param at position of where to add the new column
      * @param itemSupplier supplier of items
      */
-    public void addCol(final int at, final Supplier<T> itemSupplier) {
+    public void addCol(final int at, final Supplier<T> itemSupplier) { addCol(at, itemSupplier, true); }
+    public void addCol(final int at, final Supplier<T> itemSupplier, final boolean notify) {
         if (at < 0 || at > cols) { throw new IllegalArgumentException("index cannot be smaller or larger than cols"); }
 
         cols++;
@@ -343,12 +355,16 @@ public class ObservableMatrix<T> {
         }
 
         matrix = newMatrix;
-        MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
-        if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
-        fireEvent(evt);
+
+        if (notify) {
+            MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
+            if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
-    public void addCol(final int at, final List<T> items) {
+    public void addCol(final int at, final List<T> items) { addCol(at, items, true); }
+    public void addCol(final int at, final List<T> items, final boolean notify) {
         if (at < 0 || at > cols) { throw new IllegalArgumentException("index cannot be smaller or larger than cols"); }
         if (items.size() != rows) { throw new IllegalArgumentException("no of items must be equal to number of rows"); }
 
@@ -368,9 +384,12 @@ public class ObservableMatrix<T> {
         }
 
         matrix = newMatrix;
-        MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
-        if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
-        fireEvent(evt);
+
+        if (notify) {
+            MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
+            if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     public void addNullCol(final int at) {
@@ -401,7 +420,8 @@ public class ObservableMatrix<T> {
      * Removes col at given index
      * @param at index of col that should be removed
      */
-    public void removeCol(final int at) {
+    public void removeCol(final int at) { removeCol(at, true); }
+    public void removeCol(final int at, final boolean notify) {
         if (at < 0 || at > cols) { throw new IllegalArgumentException("index cannot be smaller or larger than cols"); }
         if (cols <= 1) { throw new IllegalArgumentException("there is just one column in the matrix"); }
 
@@ -424,9 +444,11 @@ public class ObservableMatrix<T> {
             }
             matrix = newMatrix;
         }
-        MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_REMOVED, at);
-        if (null != columnRemovedConsumer) { columnRemovedConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_REMOVED, at);
+            if (null != columnRemovedConsumer) { columnRemovedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     /**
@@ -434,7 +456,8 @@ public class ObservableMatrix<T> {
      * @param at position of where to add the new row
      * @param itemSupplier supplier of items
      */
-    public void addRow(final int at, final Supplier<T> itemSupplier) {
+    public void addRow(final int at, final Supplier<T> itemSupplier) { addRow(at, itemSupplier, true); }
+    public void addRow(final int at, final Supplier<T> itemSupplier, final boolean notify) {
         if (at < 0 || at > rows) { throw new IllegalArgumentException("index cannot be smaller or larger than rows"); }
 
         rows++;
@@ -453,12 +476,16 @@ public class ObservableMatrix<T> {
         }
 
         matrix = newMatrix;
-        MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_ADDED, at);
-        if (null != rowAddedConsumer) { rowAddedConsumer.accept(evt); }
-        fireEvent(evt);
+
+        if (notify) {
+            MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_ADDED, at);
+            if (null != rowAddedConsumer) { rowAddedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
-    public void addRow(final int at, final List<T> items) {
+    public void addRow(final int at, final List<T> items) { addRow(at, items, true); }
+    public void addRow(final int at, final List<T> items, final boolean notify) {
         if (at < 0 || at > rows) { throw new IllegalArgumentException("index cannot be smaller or larger than rows"); }
         if (items.size() != cols) { throw new IllegalArgumentException("now of items must be equal to number of columns"); }
 
@@ -478,9 +505,12 @@ public class ObservableMatrix<T> {
         }
 
         matrix = newMatrix;
-        MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_ADDED, at);
-        if (null != rowAddedConsumer) { rowAddedConsumer.accept(evt); }
-        fireEvent(evt);
+
+        if (notify) {
+            MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_ADDED, at);
+            if (null != rowAddedConsumer) { rowAddedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     public void addNullRow(final int at) {
@@ -512,7 +542,8 @@ public class ObservableMatrix<T> {
      * Removes row at given index
      * @param at index of row that should be removed
      */
-    public void removeRow(final int at) {
+    public void removeRow(final int at) { removeRow(at, true); }
+    public void removeRow(final int at, final boolean notify) {
         if (at < 0 || at > rows) { throw new IllegalArgumentException("index cannot be smaller or larger than rows"); }
         if (rows <= 1) { throw new IllegalArgumentException("there is just one row in the matrix"); }
 
@@ -537,9 +568,12 @@ public class ObservableMatrix<T> {
             }
             matrix = newMatrix;
         }
-        MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_REMOVED, at);
-        if (null != rowRemovedConsumer) { rowRemovedConsumer.accept(evt); }
-        fireEvent(evt);
+
+        if (notify) {
+            MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_REMOVED, at);
+            if (null != rowRemovedConsumer) { rowRemovedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     /**
