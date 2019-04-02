@@ -151,7 +151,7 @@ public class ObservableMatrix<T> {
         if (null != itemRemovedConsumer) { itemRemovedConsumer.accept(evt); }
         fireEvent(evt);
         }
-        checkForRemovedColumnsAndRows(x, y);
+        checkForRemovedColumnsAndRows(x, y, notify);
     }
 
     /**
@@ -172,7 +172,7 @@ public class ObservableMatrix<T> {
                     if (null != itemRemovedConsumer) { itemRemovedConsumer.accept(evt); }
                     fireEvent(evt);
                     }
-                    checkForRemovedColumnsAndRows(x, y);
+                    checkForRemovedColumnsAndRows(x, y, notify);
                     return;
                 }
             }
@@ -299,7 +299,8 @@ public class ObservableMatrix<T> {
      * will be lost.
      * @param cols
      */
-    public void setCols(final int cols) {
+    public void setCols(final int cols) { setCols(cols, true); }
+    public void setCols(final int cols, final boolean notify) {
         if (rows == -1 || cols == -1 || this.cols == -1) { throw new IllegalArgumentException("cols/rows cannot be smaller 0"); }
         T[][] oldMatrix = (T[][]) new Object[cols][rows];
 
@@ -325,9 +326,11 @@ public class ObservableMatrix<T> {
                 matrix[x][y] = oldMatrix[x][y];
             }
         }
-        MColumnsEvent evt = new MColumnsEvent(ObservableMatrix.this, NO_OF_COLUMNS_CHANGED, cols);
-        if (null != columnsChangedConsumer) { columnsChangedConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MColumnsEvent evt = new MColumnsEvent(ObservableMatrix.this, NO_OF_COLUMNS_CHANGED, cols);
+            if (null != columnsChangedConsumer) { columnsChangedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     /**
@@ -393,6 +396,9 @@ public class ObservableMatrix<T> {
     }
 
     public void addNullCol(final int at) {
+        addNullCol(at, true);
+    }
+    public void addNullCol(final int at, final boolean notify) {
         if (at < 0 || at > cols) { throw new IllegalArgumentException("index cannot be smaller or larger than cols"); }
 
         cols++;
@@ -411,9 +417,11 @@ public class ObservableMatrix<T> {
         }
 
         matrix = newMatrix;
-        MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
-        if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MColumnEvent evt = new MColumnEvent(ObservableMatrix.this, COLUMN_ADDED, at);
+            if (null != columnAddedConsumer) { columnAddedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     /**
@@ -514,6 +522,9 @@ public class ObservableMatrix<T> {
     }
 
     public void addNullRow(final int at) {
+        addNullRow(at, true);
+    }
+    public void addNullRow(final int at, final boolean notify) {
         if (at < 0 || at > rows) { throw new IllegalArgumentException("index cannot be smaller or larger than rows"); }
 
         rows++;
@@ -532,10 +543,11 @@ public class ObservableMatrix<T> {
         }
 
         matrix = newMatrix;
-
-        MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_ADDED, at);
-        if (null != rowAddedConsumer) { rowAddedConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MRowEvent evt = new MRowEvent(ObservableMatrix.this, ROW_ADDED, at);
+            if (null != rowAddedConsumer) { rowAddedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     /**
@@ -590,7 +602,8 @@ public class ObservableMatrix<T> {
      * be lost.
      * @param rows
      */
-    public void setRows(final int rows) {
+    public void setRows(final int rows) { setRows(rows, true); }
+    public void setRows(final int rows, final boolean notify) {
         if (rows == -1 || cols == -1 || this.rows == -1) { throw new IllegalArgumentException("cols/rows cannot be smaller 0"); }
         T[][] oldMatrix = (T[][]) new Object[cols][rows];
         for (int y = 0 ; y < this.rows ; y++) {
@@ -616,9 +629,11 @@ public class ObservableMatrix<T> {
                 matrix[x][y] = oldMatrix[x][y];
             }
         }
-        MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, NO_OF_ROWS_CHANGED, rows);
-        if (null != rowsChangedConsumer) { rowsChangedConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, NO_OF_ROWS_CHANGED, rows);
+            if (null != rowsChangedConsumer) { rowsChangedConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     public List<List<T>> getAllColumns() {
@@ -647,18 +662,23 @@ public class ObservableMatrix<T> {
         return emptyRows;
     }
 
-    public void mirrorColumns() {
+    public void mirrorColumns() { mirrorColumns(true); }
+    public void mirrorColumns(final boolean notify) {
         for(int i = 0; i < (matrix.length/2); i++) {
             T[] temp = matrix[i];
             matrix[i] = matrix[matrix.length - i - 1];
             matrix[matrix.length - i - 1] = temp;
         }
         colsMirrored = !colsMirrored;
-        MColumnsEvent evt = new MColumnsEvent(ObservableMatrix.this, COLUMNS_MIRRORED, cols);
-        if (null != columnsMirroredConsumer) { columnsMirroredConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MColumnsEvent evt = new MColumnsEvent(ObservableMatrix.this, COLUMNS_MIRRORED, cols);
+            if (null != columnsMirroredConsumer) { columnsMirroredConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
-    public void mirrorRows() {
+
+    public void mirrowRows() { mirrorRows(true); }
+    public void mirrorRows(final boolean notify) {
         for (int j = 0; j < matrix.length; ++j) {
             T[] row = matrix[j];
             for(int i = 0; i < (row.length/2); i++) {
@@ -668,9 +688,11 @@ public class ObservableMatrix<T> {
             }
         }
         rowsMirrored = !rowsMirrored;
-        MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, ROWS_MIRRORED, rows);
-        if (null != rowsMirroredConsumer) { rowsMirroredConsumer.accept(evt); }
-        fireEvent(evt);
+        if (notify) {
+            MRowsEvent evt = new MRowsEvent(ObservableMatrix.this, ROWS_MIRRORED, rows);
+            if (null != rowsMirroredConsumer) { rowsMirroredConsumer.accept(evt); }
+            fireEvent(evt);
+        }
     }
 
     public boolean getColsMirrored() { return colsMirrored; }
@@ -717,13 +739,13 @@ public class ObservableMatrix<T> {
         return (T[][]) Array.newInstance(type, cols, rows);
     }
 
-    private void checkForRemovedColumnsAndRows(final int removedItemCol, final int removedItemRow) {
+    private void checkForRemovedColumnsAndRows(final int removedItemCol, final int removedItemRow, final boolean notify) {
         int nullItemCounter = 0;
         for (int r = 0 ; r < rows ; r++) {
             if (null == getItemAt(removedItemCol, r)) { nullItemCounter++; }
         }
         if (nullItemCounter == rows) {
-            removeCol(removedItemCol);
+            removeCol(removedItemCol, notify);
             return;
         }
 
@@ -732,7 +754,7 @@ public class ObservableMatrix<T> {
             if (null == getItemAt(c, removedItemRow)) { nullItemCounter++; }
         }
         if (nullItemCounter == cols) {
-            removeRow(removedItemRow);
+            removeRow(removedItemRow, notify);
             return;
         }
     }
